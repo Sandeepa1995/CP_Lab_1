@@ -5,21 +5,49 @@
 #include <functional>
 #include <limits>
 #include <chrono>
+#include <fstream>
+#include <sstream>
 
 #include "linked_list.h"
 #include "utils.h"
 #include "operations.h"
 
-int main() {
 
-//    std::vector<double> x_seq;
-//    std::vector<double> x_mutex;
-//    std::vector<double> x_rwl;
-//
-//    std::vector<double> y_threads;
-//    for (int i =0; i<4; i++){
-//        y_threads.push_back(THREAD_NUMBERS[i])
-//    }
+int main() {
+    std::string PROJECT_PATH = "/home/damitha/CLionProjects/CP_Lab_1";
+    int i;
+
+    // Output files
+    // Case 1
+    // Seq
+    std::ofstream out_1_seq;
+    out_1_seq.open(PROJECT_PATH + "/outputs/out_1_seq.csv", std::ofstream::out | std::ofstream::trunc);
+    // Mutex
+    std::ofstream out_1_mutex;
+    out_1_mutex.open(PROJECT_PATH + "/outputs/out_1_mutex.csv", std::ofstream::out | std::ofstream::trunc);
+    // RWLock
+    std::ofstream out_1_rwl;
+    out_1_rwl.open(PROJECT_PATH + "/outputs/out_1_rwl.csv", std::ofstream::out | std::ofstream::trunc);
+    // Case 2
+    // Seq
+    std::ofstream out_2_seq;
+    out_2_seq.open(PROJECT_PATH + "/outputs/out_2_seq.csv", std::ofstream::out | std::ofstream::trunc);
+    // Mutex
+    std::ofstream out_2_mutex;
+    out_2_mutex.open(PROJECT_PATH + "/outputs/out_2_mutex.csv", std::ofstream::out | std::ofstream::trunc);
+    // RWLock
+    std::ofstream out_2_rwl;
+    out_2_rwl.open(PROJECT_PATH + "/outputs/out_2_rwl.csv", std::ofstream::out | std::ofstream::trunc);
+    // Case 3
+    // Seq
+    std::ofstream out_3_seq;
+    out_3_seq.open(PROJECT_PATH + "/outputs/out_3_seq.csv", std::ofstream::out | std::ofstream::trunc);
+    // Mutex
+    std::ofstream out_3_mutex;
+    out_3_mutex.open(PROJECT_PATH + "/outputs/out_3_mutex.csv", std::ofstream::out | std::ofstream::trunc);
+    // RWLock
+    std::ofstream out_3_rwl;
+    out_3_rwl.open(PROJECT_PATH + "/outputs/out_3_rwl.csv", std::ofstream::out | std::ofstream::trunc);
 
     ///Case 1
     ///n = 1,000 and m = 10,000, m Member = 0.99, m Insert = 0.005, m Delete = 0.005
@@ -36,154 +64,72 @@ int main() {
     ///Case 3
     ///n = 1,000 and m = 10,000, m Member = 0.50, m Insert = 0.25, m Delete = 0.25
     std::vector<double> case_3_seq = do_tasks_n_get_times(5000, 2500, 2500, do_seq_operations);
-    std::vector<std::vector<double>> case_3_mutex = do_parallel_tasks_n_get_times(5000, 2500, 2500, do_mutex_operations);
+    std::vector<std::vector<double>> case_3_mutex = do_parallel_tasks_n_get_times(5000, 2500, 2500,
+                                                                                  do_mutex_operations);
     std::vector<std::vector<double>> case_3_rwl = do_parallel_tasks_n_get_times(5000, 2500, 2500, do_rwl_operations);
 
-    std::cout << "case_1_seq" << std::endl;
-    std::cout << case_1_seq.at(0) << std::endl;
-    std::cout << case_1_seq.at(1) << std::endl;
-    std::cout << case_1_seq.at(2) << std::endl;
+    // Write outputs
+    // Case 1
+    out_1_seq << 1 << ", " << case_1_seq.at(1) << "\n";
+    for (i = 0; i < 4; i++) {
+        out_1_mutex << THREAD_NUMBERS[i] << ", " << case_1_mutex.at(i).at(1) << "\n";
+        out_1_rwl << THREAD_NUMBERS[i] << ", " << case_1_rwl.at(i).at(1) << "\n";
+    }
+    // Case 2
+    out_2_seq << 1 << ", " << case_2_seq.at(1) << "\n";
+    for (i = 0; i < 4; i++) {
+        out_2_mutex << THREAD_NUMBERS[i] << ", " << case_2_mutex.at(i).at(1) << "\n";
+        out_2_rwl << THREAD_NUMBERS[i] << ", " << case_2_rwl.at(i).at(1) << "\n";
+    }
+    // Case 3
+    out_3_seq << 1 << ", " << case_3_seq.at(1) << "\n";
+    for (i = 0; i < 4; i++) {
+        out_3_mutex << THREAD_NUMBERS[i] << ", " << case_3_mutex.at(i).at(1) << "\n";
+        out_3_rwl << THREAD_NUMBERS[i] << ", " << case_3_rwl.at(i).at(1) << "\n";
+    }
 
-    std::cout << "case_1_mutex 1" << std::endl;
-    std::cout << case_1_mutex.at(0).at(0) << std::endl;
-    std::cout << case_1_mutex.at(0).at(1) << std::endl;
-    std::cout << case_1_mutex.at(0).at(2) << std::endl;
+    // Print results
+    // Case 1
+    std::cout << "Case 1" << std::endl;
+    std::cout << "Operation: Seqen, Threads: 1, Mean: " << case_1_seq.at(1) << " ,Std: " << case_1_seq.at(2) <<
+              " ,Iterations: " << case_1_seq.at(0) << std::endl;
+    for (i = 0; i < 4; i++) {
+        std::cout << "Operation: Mutex, Threads: " << THREAD_NUMBERS[i] << " ,Mean: " << case_1_mutex.at(i).at(1)
+                  << " ,Std: " << case_1_mutex.at(i).at(2) << " ,Iterations: " << case_1_mutex.at(i).at(0) << std::endl;
+    }
+    for (i = 0; i < 4; i++) {
+        std::cout << "Operation: RWLoc, Threads: " << THREAD_NUMBERS[i] << " ,Mean: " << case_1_rwl.at(i).at(1)
+                  << " ,Std: "
+                  << case_1_rwl.at(i).at(2) << " ,Iterations: " << case_1_rwl.at(i).at(0) << std::endl;
+    }
 
-    std::cout << "case_1_mutex 2" << std::endl;
-    std::cout << case_1_mutex.at(1).at(0) << std::endl;
-    std::cout << case_1_mutex.at(1).at(1) << std::endl;
-    std::cout << case_1_mutex.at(1).at(2) << std::endl;
+    // Case 2
+    std::cout << "Case 2" << std::endl;
+    std::cout << "Operation: Seqen, Threads: 1, Mean: " << case_2_seq.at(1) << " ,Std: " << case_2_seq.at(2) <<
+              " ,Iterations: " << case_2_seq.at(0) << std::endl;
+    for (i = 0; i < 4; i++) {
+        std::cout << "Operation: Mutex, Threads: " << THREAD_NUMBERS[i] << " ,Mean: " << case_2_mutex.at(i).at(1)
+                  << " ,Std: " << case_2_mutex.at(i).at(2) << " ,Iterations: " << case_2_mutex.at(i).at(0) << std::endl;
+    }
+    for (i = 0; i < 4; i++) {
+        std::cout << "Operation: RWLoc, Threads: " << THREAD_NUMBERS[i] << " ,Mean: " << case_2_rwl.at(i).at(1)
+                  << " ,Std: "
+                  << case_2_rwl.at(i).at(2) << " ,Iterations: " << case_2_rwl.at(i).at(0) << std::endl;
+    }
 
-    std::cout << "case_1_mutex 4" << std::endl;
-    std::cout << case_1_mutex.at(2).at(0) << std::endl;
-    std::cout << case_1_mutex.at(2).at(1) << std::endl;
-    std::cout << case_1_mutex.at(2).at(2) << std::endl;
-
-    std::cout << "case_1_mutex 8" << std::endl;
-    std::cout << case_1_mutex.at(3).at(0) << std::endl;
-    std::cout << case_1_mutex.at(3).at(1) << std::endl;
-    std::cout << case_1_mutex.at(3).at(2) << std::endl;
-
-    std::cout << "case_1_rwl 1" << std::endl;
-    std::cout << case_1_rwl.at(0).at(0) << std::endl;
-    std::cout << case_1_rwl.at(0).at(1) << std::endl;
-    std::cout << case_1_rwl.at(0).at(2) << std::endl;
-
-    std::cout << "case_1_rwl 2" << std::endl;
-    std::cout << case_1_rwl.at(1).at(0) << std::endl;
-    std::cout << case_1_rwl.at(1).at(1) << std::endl;
-    std::cout << case_1_rwl.at(1).at(2) << std::endl;
-
-    std::cout << "case_1_rwl 4" << std::endl;
-    std::cout << case_1_rwl.at(2).at(0) << std::endl;
-    std::cout << case_1_rwl.at(2).at(1) << std::endl;
-    std::cout << case_1_rwl.at(2).at(2) << std::endl;
-
-    std::cout << "case_1_rwl 8" << std::endl;
-    std::cout << case_1_rwl.at(3).at(0) << std::endl;
-    std::cout << case_1_rwl.at(3).at(1) << std::endl;
-    std::cout << case_1_rwl.at(3).at(2) << std::endl;
-
-//    x_seq.push_back(case_1_seq.at(1));
-//
-//    for (int j=0; j<4; j++){
-//        x_rwl.push_back(case_1_rwl.at(j).at(1));
-//        x_mutex.push_back(case_1_mutex.at(j).at(1));
-//    }
-
-
-    std::cout << "case_2_seq" << std::endl;
-    std::cout << case_2_seq.at(0) << std::endl;
-    std::cout << case_2_seq.at(1) << std::endl;
-    std::cout << case_2_seq.at(2) << std::endl;
-
-    std::cout << "case_2_mutex 1" << std::endl;
-    std::cout << case_2_mutex.at(0).at(0) << std::endl;
-    std::cout << case_2_mutex.at(0).at(1) << std::endl;
-    std::cout << case_2_mutex.at(0).at(2) << std::endl;
-
-    std::cout << "case_2_mutex 2" << std::endl;
-    std::cout << case_2_mutex.at(1).at(0) << std::endl;
-    std::cout << case_2_mutex.at(1).at(1) << std::endl;
-    std::cout << case_2_mutex.at(1).at(2) << std::endl;
-
-    std::cout << "case_2_mutex 4" << std::endl;
-    std::cout << case_2_mutex.at(2).at(0) << std::endl;
-    std::cout << case_2_mutex.at(2).at(1) << std::endl;
-    std::cout << case_2_mutex.at(2).at(2) << std::endl;
-
-    std::cout << "case_2_mutex 8" << std::endl;
-    std::cout << case_2_mutex.at(3).at(0) << std::endl;
-    std::cout << case_2_mutex.at(3).at(1) << std::endl;
-    std::cout << case_2_mutex.at(3).at(2) << std::endl;
-
-    std::cout << "case_2_rwl 1" << std::endl;
-    std::cout << case_2_rwl.at(0).at(0) << std::endl;
-    std::cout << case_2_rwl.at(0).at(1) << std::endl;
-    std::cout << case_2_rwl.at(0).at(2) << std::endl;
-
-    std::cout << "case_2_rwl 2" << std::endl;
-    std::cout << case_2_rwl.at(1).at(0) << std::endl;
-    std::cout << case_2_rwl.at(1).at(1) << std::endl;
-    std::cout << case_2_rwl.at(1).at(2) << std::endl;
-
-    std::cout << "case_2_rwl 4" << std::endl;
-    std::cout << case_2_rwl.at(2).at(0) << std::endl;
-    std::cout << case_2_rwl.at(2).at(1) << std::endl;
-    std::cout << case_2_rwl.at(2).at(2) << std::endl;
-
-    std::cout << "case_2_rwl 8" << std::endl;
-    std::cout << case_2_rwl.at(3).at(0) << std::endl;
-    std::cout << case_2_rwl.at(3).at(1) << std::endl;
-    std::cout << case_2_rwl.at(3).at(2) << std::endl;
-    
-    
-    
-
-    std::cout << "case_3_seq" << std::endl;
-    std::cout << case_3_seq.at(0) << std::endl;
-    std::cout << case_3_seq.at(1) << std::endl;
-    std::cout << case_3_seq.at(2) << std::endl;
-
-    std::cout << "case_3_mutex 1" << std::endl;
-    std::cout << case_3_mutex.at(0).at(0) << std::endl;
-    std::cout << case_3_mutex.at(0).at(1) << std::endl;
-    std::cout << case_3_mutex.at(0).at(2) << std::endl;
-
-    std::cout << "case_3_mutex 2" << std::endl;
-    std::cout << case_3_mutex.at(1).at(0) << std::endl;
-    std::cout << case_3_mutex.at(1).at(1) << std::endl;
-    std::cout << case_3_mutex.at(1).at(2) << std::endl;
-
-    std::cout << "case_3_mutex 4" << std::endl;
-    std::cout << case_3_mutex.at(2).at(0) << std::endl;
-    std::cout << case_3_mutex.at(2).at(1) << std::endl;
-    std::cout << case_3_mutex.at(2).at(2) << std::endl;
-
-    std::cout << "case_3_mutex 8" << std::endl;
-    std::cout << case_3_mutex.at(3).at(0) << std::endl;
-    std::cout << case_3_mutex.at(3).at(1) << std::endl;
-    std::cout << case_3_mutex.at(3).at(2) << std::endl;
-
-    std::cout << "case_3_rwl 1" << std::endl;
-    std::cout << case_3_rwl.at(0).at(0) << std::endl;
-    std::cout << case_3_rwl.at(0).at(1) << std::endl;
-    std::cout << case_3_rwl.at(0).at(2) << std::endl;
-
-    std::cout << "case_3_rwl 2" << std::endl;
-    std::cout << case_3_rwl.at(1).at(0) << std::endl;
-    std::cout << case_3_rwl.at(1).at(1) << std::endl;
-    std::cout << case_3_rwl.at(1).at(2) << std::endl;
-
-    std::cout << "case_3_rwl 4" << std::endl;
-    std::cout << case_3_rwl.at(2).at(0) << std::endl;
-    std::cout << case_3_rwl.at(2).at(1) << std::endl;
-    std::cout << case_3_rwl.at(2).at(2) << std::endl;
-
-    std::cout << "case_3_rwl 8" << std::endl;
-    std::cout << case_3_rwl.at(3).at(0) << std::endl;
-    std::cout << case_3_rwl.at(3).at(1) << std::endl;
-    std::cout << case_3_rwl.at(3).at(2) << std::endl;
+    // Case 3
+    std::cout << "Case 3" << std::endl;
+    std::cout << "Operation: Seqen, Threads: 1, Mean: " << case_3_seq.at(1) << " ,Std: " << case_3_seq.at(2) <<
+              " ,Iterations: " << case_3_seq.at(0) << std::endl;
+    for (i = 0; i < 4; i++) {
+        std::cout << "Operation: Mutex, Threads: " << THREAD_NUMBERS[i] << " ,Mean: " << case_3_mutex.at(i).at(1)
+                  << " ,Std: " << case_3_mutex.at(i).at(2) << " ,Iterations: " << case_3_mutex.at(i).at(0) << std::endl;
+    }
+    for (i = 0; i < 4; i++) {
+        std::cout << "Operation: RWLoc, Threads: " << THREAD_NUMBERS[i] << " ,Mean: " << case_3_rwl.at(i).at(1)
+                  << " ,Std: "
+                  << case_3_rwl.at(i).at(2) << " ,Iterations: " << case_3_rwl.at(i).at(0) << std::endl;
+    }
 
     return 0;
 }

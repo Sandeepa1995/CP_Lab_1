@@ -52,7 +52,7 @@ struct thread_data {
 double do_seq_operations(int member_ops, int insert_ops, int delete_ops, int min, int max) {
     lst = Linked_List::generate_random_list(1000);
     srand(time(nullptr));
-    int i;
+    int i, rand_num;
 
     std::chrono::time_point<std::chrono::high_resolution_clock> t1, t2;
 //    clock_t t1, t2;
@@ -66,8 +66,9 @@ double do_seq_operations(int member_ops, int insert_ops, int delete_ops, int min
 
     int min_operation = std::min(insert_ops, delete_ops);
     for (i = 0; i < min_operation; i++) {
-        lst.insert_node(rand() % (max - min) + min);
-        lst.delete_node(rand() % (max - min) + min);
+        rand_num = rand() % (max - min) + min;
+        lst.insert_node(rand_num);
+        lst.delete_node(rand_num);
     }
 
     int remain_insert = insert_ops - min_operation;
@@ -134,7 +135,7 @@ double do_mutex_operations(int thread_cnt, int member_ops, int insert_ops, int d
 void *mutex_operations(void *threadarg) {
     struct thread_data *data;
     data = (struct thread_data *) threadarg;
-    int i;
+    int i, rand_num;
 
     for (i = 0; i < data->member_ops; i++) {
         pthread_mutex_lock(&mutex);
@@ -144,12 +145,13 @@ void *mutex_operations(void *threadarg) {
 
     int min_operation = std::min(data->insert_ops, data->delete_ops);
     for (i = 0; i < min_operation; i++) {
+        rand_num = rand() % (data->max - data->min) + data->min;
         pthread_mutex_lock(&mutex);
-        lst.insert_node(rand() % (data->max - data->min) + data->min);
+        lst.insert_node(rand_num);
         pthread_mutex_unlock(&mutex);
 
         pthread_mutex_lock(&mutex);
-        lst.delete_node(rand() % (data->max - data->min) + data->min);
+        lst.delete_node(rand_num);
         pthread_mutex_unlock(&mutex);
     }
 
@@ -215,7 +217,7 @@ double do_rwl_operations(int thread_cnt, int member_ops, int insert_ops, int del
 void *rwl_operations(void *threadarg) {
     struct thread_data *data;
     data = (struct thread_data *) threadarg;
-    int i;
+    int i, rand_num;
 
     for (i = 0; i < data->member_ops; i++) {
         pthread_rwlock_rdlock(&rwlock);
@@ -225,12 +227,14 @@ void *rwl_operations(void *threadarg) {
 
     int min_operation = std::min(data->insert_ops, data->delete_ops);
     for (i = 0; i < min_operation; i++) {
+        rand_num = rand() % (data->max - data->min) + data->min;
+
         pthread_rwlock_wrlock(&rwlock);
-        lst.insert_node(rand() % (data->max - data->min) + data->min);
+        lst.insert_node(rand_num);
         pthread_rwlock_unlock(&rwlock);
 
         pthread_rwlock_wrlock(&rwlock);
-        lst.delete_node(rand() % (data->max - data->min) + data->min);
+        lst.delete_node(rand_num);
         pthread_rwlock_unlock(&rwlock);
     }
 
