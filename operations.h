@@ -52,29 +52,40 @@ struct thread_data {
 double do_seq_operations(int member_ops, int insert_ops, int delete_ops, int min, int max) {
     lst = Linked_List::generate_random_list(1000);
     srand(time(nullptr));
+    int i;
 
     std::chrono::time_point<std::chrono::high_resolution_clock> t1, t2;
 //    clock_t t1, t2;
 
     t1 = std::chrono::high_resolution_clock::now();
 //    t1 = clock();
-    for (int i1 = 0; i1 < member_ops; i1++) {
+
+    for (i = 0; i < member_ops; i++) {
         lst.member(rand() % (max - min) + min);
     }
 
-    for (int i2 = 0; i2 < insert_ops; i2++) {
+    int min_operation = std::min(insert_ops, delete_ops);
+    for (i = 0; i < min_operation; i++) {
+        lst.insert_node(rand() % (max - min) + min);
+        lst.delete_node(rand() % (max - min) + min);
+    }
+
+    int remain_insert = insert_ops - min_operation;
+    for (i = 0; i < remain_insert; i++) {
         lst.insert_node(rand() % (max - min) + min);
     }
 
-    for (int i3 = 0; i3 < delete_ops; i3++) {
+    int remain_delete = delete_ops - min_operation;
+    for (i = 0; i < remain_delete; i++) {
         lst.delete_node(rand() % (max - min) + min);
     }
+
     t2 = std::chrono::high_resolution_clock::now();
 
     lst.free_list();
 //    t2 = clock();
 
-    return std::chrono::duration_cast<std::chrono::nanoseconds>(t2 - t1).count();
+    return std::chrono::duration_cast<std::chrono::milliseconds>(t2 - t1).count();
 //    return ((double)t2 - (double)t1)*1000000/CLOCKS_PER_SEC;
 }
 
@@ -117,26 +128,40 @@ double do_mutex_operations(int thread_cnt, int member_ops, int insert_ops, int d
     pthread_mutex_destroy(&mutex);
     lst.free_list();
 
-    return std::chrono::duration_cast<std::chrono::nanoseconds>(t2 - t1).count();
+    return std::chrono::duration_cast<std::chrono::milliseconds>(t2 - t1).count();
 }
 
 void *mutex_operations(void *threadarg) {
     struct thread_data *data;
     data = (struct thread_data *) threadarg;
+    int i;
 
-    for (int i1 = 0; i1 < data->member_ops; i1++) {
+    for (i = 0; i < data->member_ops; i++) {
         pthread_mutex_lock(&mutex);
         lst.member(rand() % (data->max - data->min) + data->min);
         pthread_mutex_unlock(&mutex);
     }
 
-    for (int i2 = 0; i2 < data->insert_ops; i2++) {
+    int min_operation = std::min(data->insert_ops, data->delete_ops);
+    for (i = 0; i < min_operation; i++) {
+        pthread_mutex_lock(&mutex);
+        lst.insert_node(rand() % (data->max - data->min) + data->min);
+        pthread_mutex_unlock(&mutex);
+
+        pthread_mutex_lock(&mutex);
+        lst.delete_node(rand() % (data->max - data->min) + data->min);
+        pthread_mutex_unlock(&mutex);
+    }
+
+    int remain_insert = data->insert_ops - min_operation;
+    for (i = 0; i < remain_insert; i++) {
         pthread_mutex_lock(&mutex);
         lst.insert_node(rand() % (data->max - data->min) + data->min);
         pthread_mutex_unlock(&mutex);
     }
 
-    for (int i3 = 0; i3 < data->delete_ops; i3++) {
+    int remain_delete = data->delete_ops - min_operation;
+    for (i = 0; i < remain_delete; i++) {
         pthread_mutex_lock(&mutex);
         lst.delete_node(rand() % (data->max - data->min) + data->min);
         pthread_mutex_unlock(&mutex);
@@ -184,26 +209,40 @@ double do_rwl_operations(int thread_cnt, int member_ops, int insert_ops, int del
     pthread_rwlock_destroy(&rwlock);
     lst.free_list();
 
-    return std::chrono::duration_cast<std::chrono::nanoseconds>(t2 - t1).count();
+    return std::chrono::duration_cast<std::chrono::milliseconds>(t2 - t1).count();
 }
 
 void *rwl_operations(void *threadarg) {
     struct thread_data *data;
     data = (struct thread_data *) threadarg;
+    int i;
 
-    for (int i1 = 0; i1 < data->member_ops; i1++) {
+    for (i = 0; i < data->member_ops; i++) {
         pthread_rwlock_rdlock(&rwlock);
         lst.member(rand() % (data->max - data->min) + data->min);
         pthread_rwlock_unlock(&rwlock);
     }
 
-    for (int i2 = 0; i2 < data->insert_ops; i2++) {
+    int min_operation = std::min(data->insert_ops, data->delete_ops);
+    for (i = 0; i < min_operation; i++) {
+        pthread_rwlock_wrlock(&rwlock);
+        lst.insert_node(rand() % (data->max - data->min) + data->min);
+        pthread_rwlock_unlock(&rwlock);
+
+        pthread_rwlock_wrlock(&rwlock);
+        lst.delete_node(rand() % (data->max - data->min) + data->min);
+        pthread_rwlock_unlock(&rwlock);
+    }
+
+    int remain_insert = data->insert_ops - min_operation;
+    for (i = 0; i < remain_insert; i++) {
         pthread_rwlock_wrlock(&rwlock);
         lst.insert_node(rand() % (data->max - data->min) + data->min);
         pthread_rwlock_unlock(&rwlock);
     }
 
-    for (int i3 = 0; i3 < data->delete_ops; i3++) {
+    int remain_delete = data->delete_ops - min_operation;
+    for (i = 0; i < remain_delete; i++) {
         pthread_rwlock_wrlock(&rwlock);
         lst.delete_node(rand() % (data->max - data->min) + data->min);
         pthread_rwlock_unlock(&rwlock);

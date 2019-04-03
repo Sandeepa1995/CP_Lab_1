@@ -11,6 +11,16 @@
 #include "operations.h"
 
 int main() {
+
+//    std::vector<double> x_seq;
+//    std::vector<double> x_mutex;
+//    std::vector<double> x_rwl;
+//
+//    std::vector<double> y_threads;
+//    for (int i =0; i<4; i++){
+//        y_threads.push_back(THREAD_NUMBERS[i])
+//    }
+
     ///Case 1
     ///n = 1,000 and m = 10,000, m Member = 0.99, m Insert = 0.005, m Delete = 0.005
     std::vector<double> case_1_seq = do_tasks_n_get_times(9900, 50, 50, do_seq_operations);
@@ -73,9 +83,14 @@ int main() {
     std::cout << case_1_rwl.at(3).at(0) << std::endl;
     std::cout << case_1_rwl.at(3).at(1) << std::endl;
     std::cout << case_1_rwl.at(3).at(2) << std::endl;
-    
-    
-    
+
+//    x_seq.push_back(case_1_seq.at(1));
+//
+//    for (int j=0; j<4; j++){
+//        x_rwl.push_back(case_1_rwl.at(j).at(1));
+//        x_mutex.push_back(case_1_mutex.at(j).at(1));
+//    }
+
 
     std::cout << "case_2_seq" << std::endl;
     std::cout << case_2_seq.at(0) << std::endl;
