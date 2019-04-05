@@ -28,7 +28,6 @@ pthread_rwlock_t rwlock;
 // Define a list
 Linked_List lst;
 
-
 // Function definitions
 // Operation functions
 double do_seq_operations(int member_ops, int insert_ops, int delete_ops, int min = 0, int max = 65536);
@@ -59,7 +58,8 @@ double do_seq_operations(int member_ops, int insert_ops, int delete_ops, int min
     // Generate a list with random values
     lst = Linked_List::generate_random_list(1000);
     // Initialize random function passing the current time as the seed
-    srand(time(nullptr));
+    clock_gettime(CLOCK_MONOTONIC, &ts);
+    srand((time_t)ts.tv_nsec);
     // Define variables
     int rand_num, chk;
     float rand_operation;
@@ -153,7 +153,8 @@ double do_mutex_operations(int thread_cnt, int member_ops, int insert_ops, int d
     // Generate a list with random values
     lst = Linked_List::generate_random_list(1000);
     // Initialize random function passing the current time as the seed
-    srand(time(nullptr));
+    clock_gettime(CLOCK_MONOTONIC, &ts);
+    srand((time_t)ts.tv_nsec);
 
     // Initialize time variables
     std::chrono::time_point<std::chrono::high_resolution_clock> t1, t2;
@@ -308,7 +309,8 @@ double do_rwl_operations(int thread_cnt, int member_ops, int insert_ops, int del
     // Generate a list with random values
     lst = Linked_List::generate_random_list(1000);
     // Initialize random function passing the current time as the seed
-    srand(time(nullptr));
+    clock_gettime(CLOCK_MONOTONIC, &ts);
+    srand((time_t)ts.tv_nsec);
 
     // Initialize time variables
     std::chrono::time_point<std::chrono::high_resolution_clock> t1, t2;

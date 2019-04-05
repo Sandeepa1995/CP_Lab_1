@@ -8,6 +8,8 @@
 #include <iostream>
 #include <time.h>
 
+struct timespec ts;
+
 // Linked List class
 class Linked_List{
 public:
@@ -20,7 +22,8 @@ public:
     void free_list();
     static Linked_List generate_random_list(int n, int min = 0, int max = 65536){
         Linked_List new_list;
-        srand(time(nullptr));
+        clock_gettime(CLOCK_MONOTONIC, &ts);
+        srand((time_t)ts.tv_nsec);
 
         while (new_list.size() < n){
             new_list.insert_node(rand() % (max - min) + min);
