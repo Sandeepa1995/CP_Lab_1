@@ -15,7 +15,7 @@
 
 int main() {
     std::string PROJECT_PATH = "/home/damitha/CLionProjects/CP_Lab_1";
-    int i;
+    int i, m_mem, m_insert, m_delete;
 
     // Output files
     // Case 1
@@ -51,22 +51,31 @@ int main() {
 
     ///Case 1
     ///n = 1,000 and m = 10,000, m Member = 0.99, m Insert = 0.005, m Delete = 0.005
-    std::vector<double> case_1_seq = do_tasks_n_get_times(9900, 50, 50, do_seq_operations);
-    std::vector<std::vector<double>> case_1_mutex = do_parallel_tasks_n_get_times(9900, 50, 50, do_mutex_operations);
-    std::vector<std::vector<double>> case_1_rwl = do_parallel_tasks_n_get_times(9900, 50, 50, do_rwl_operations);
+    m_mem = 9900;
+    m_insert = 50;
+    m_delete = 50;
+    std::vector<double> case_1_seq = do_tasks_n_get_times(m_mem, m_insert, m_delete, do_seq_operations);
+    std::vector<std::vector<double>> case_1_mutex = do_parallel_tasks_n_get_times(m_mem, m_insert, m_delete, do_mutex_operations);
+    std::vector<std::vector<double>> case_1_rwl = do_parallel_tasks_n_get_times(m_mem, m_insert, m_delete, do_rwl_operations);
 
     ///Case 2
     ///n = 1,000 and m = 10,000, m Member = 0.90, m Insert = 0.05, m Delete = 0.05
-    std::vector<double> case_2_seq = do_tasks_n_get_times(9000, 500, 500, do_seq_operations);
-    std::vector<std::vector<double>> case_2_mutex = do_parallel_tasks_n_get_times(9000, 500, 500, do_mutex_operations);
-    std::vector<std::vector<double>> case_2_rwl = do_parallel_tasks_n_get_times(9000, 500, 500, do_rwl_operations);
+    m_mem = 9000;
+    m_insert = 500;
+    m_delete = 500;
+    std::vector<double> case_2_seq = do_tasks_n_get_times(m_mem, m_insert, m_delete, do_seq_operations);
+    std::vector<std::vector<double>> case_2_mutex = do_parallel_tasks_n_get_times(m_mem, m_insert, m_delete, do_mutex_operations);
+    std::vector<std::vector<double>> case_2_rwl = do_parallel_tasks_n_get_times(m_mem, m_insert, m_delete, do_rwl_operations);
 
     ///Case 3
     ///n = 1,000 and m = 10,000, m Member = 0.50, m Insert = 0.25, m Delete = 0.25
-    std::vector<double> case_3_seq = do_tasks_n_get_times(5000, 2500, 2500, do_seq_operations);
-    std::vector<std::vector<double>> case_3_mutex = do_parallel_tasks_n_get_times(5000, 2500, 2500,
+    m_mem = 5000;
+    m_insert = 2500;
+    m_delete = 2500;
+    std::vector<double> case_3_seq = do_tasks_n_get_times(m_mem, m_insert, m_delete, do_seq_operations);
+    std::vector<std::vector<double>> case_3_mutex = do_parallel_tasks_n_get_times(m_mem, m_insert, m_delete,
                                                                                   do_mutex_operations);
-    std::vector<std::vector<double>> case_3_rwl = do_parallel_tasks_n_get_times(5000, 2500, 2500, do_rwl_operations);
+    std::vector<std::vector<double>> case_3_rwl = do_parallel_tasks_n_get_times(m_mem, m_insert, m_delete, do_rwl_operations);
 
     // Write outputs
     // Case 1

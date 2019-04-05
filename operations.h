@@ -54,6 +54,7 @@ struct thread_data {
 double do_seq_operations(int member_ops, int insert_ops, int delete_ops, int min, int max) {
     lst = Linked_List::generate_random_list(1000);
     srand(time(nullptr));
+    int rand_num, chk;
     int local_member = 0, local_insert = 0, local_delete = 0;
     float total_ops = member_ops + insert_ops + delete_ops;
     float member_percen = member_ops / total_ops, insert_percen = insert_ops / total_ops, delete_percen =
@@ -70,10 +71,42 @@ double do_seq_operations(int member_ops, int insert_ops, int delete_ops, int min
             lst.member(rand() % (max - min) + min);
             local_member++;
         } else if((rand_operation < (member_percen + insert_percen)) && (local_insert < insert_ops)){
-            lst.insert_node(rand() % (max - min) + min);
+            rand_num = rand() % (max - min) + min;
+            chk = lst.insert_node(rand_num);
+            if (chk == 1){
+                while(local_member < member_ops){
+                    rand_operation = rand() / (float) RAND_MAX;
+                    if (rand_operation < member_percen){
+                        lst.member(rand() % (max - min) + min);
+                        local_member++;
+                    } else {
+                        break;
+                    }
+                }
+                if (local_delete < delete_ops){
+                    lst.delete_node(rand_num);
+                    local_delete++;
+                }
+            }
             local_insert++;
         } else if (local_delete < delete_ops){
-            lst.delete_node(rand() % (max - min) + min);
+            rand_num = rand() % (max - min) + min;
+            chk = lst.delete_node(rand_num);
+            if (chk == 1){
+                while(local_member < member_ops) {
+                    rand_operation = rand() / (float) RAND_MAX;
+                    if (rand_operation < member_percen) {
+                        lst.member(rand() % (max - min) + min);
+                        local_member++;
+                    } else {
+                        break;
+                    }
+                }
+                if (local_insert < insert_ops){
+                    lst.insert_node(rand_num);
+                    local_insert++;
+                }
+            }
             local_delete++;
         } else if (local_member < member_ops){
             lst.member(rand() % (max - min) + min);
@@ -135,6 +168,7 @@ double do_mutex_operations(int thread_cnt, int member_ops, int insert_ops, int d
 void *mutex_operations(void *threadarg) {
     struct thread_data *data;
     data = (struct thread_data *) threadarg;
+    int rand_num, chk;
     int local_member = 0, local_insert = 0, local_delete = 0;
     float total_ops = data->member_ops + data->insert_ops + data->delete_ops;
     float member_percen = data->member_ops / total_ops, insert_percen = data->insert_ops / total_ops, delete_percen =
@@ -149,14 +183,54 @@ void *mutex_operations(void *threadarg) {
             pthread_mutex_unlock(&mutex);
             local_member++;
         } else if((rand_operation < (member_percen + insert_percen)) && (local_insert < data->insert_ops)){
+            rand_num = rand() % (data->max - data->min) + data->min;
             pthread_mutex_lock(&mutex);
-            lst.insert_node(rand() % (data->max - data->min) + data->min);
+            chk = lst.insert_node(rand_num);
             pthread_mutex_unlock(&mutex);
+            if (chk == 1){
+                while(local_member < data->member_ops){
+                    rand_operation = rand() / (float) RAND_MAX;
+                    if (rand_operation < member_percen){
+                        pthread_mutex_lock(&mutex);
+                        lst.member(rand() % (data->max - data->min) + data->min);
+                        pthread_mutex_unlock(&mutex);
+                        local_member++;
+                    } else {
+                        break;
+                    }
+                }
+                if (local_delete < data->delete_ops){
+                    pthread_mutex_lock(&mutex);
+                    lst.delete_node(rand_num);
+                    pthread_mutex_unlock(&mutex);
+                    local_delete++;
+                }
+            }
             local_insert++;
         } else if (local_delete < data->delete_ops){
+            rand_num = rand() % (data->max - data->min) + data->min;
             pthread_mutex_lock(&mutex);
-            lst.delete_node(rand() % (data->max - data->min) + data->min);
+            chk = lst.delete_node(rand_num);
             pthread_mutex_unlock(&mutex);
+            if (chk == 1){
+                while(local_member < data->member_ops) {
+                    rand_operation = rand() / (float) RAND_MAX;
+                    if (rand_operation < member_percen) {
+                        pthread_mutex_lock(&mutex);
+                        lst.member(rand() % (data->max - data->min) + data->min);
+                        pthread_mutex_unlock(&mutex);
+                        local_member++;
+                    } else {
+                        break;
+                    }
+                }
+                if (local_insert < data->insert_ops){
+                    pthread_mutex_lock(&mutex);
+                    lst.insert_node(rand_num);
+                    pthread_mutex_unlock(&mutex);
+                    local_insert++;
+                }
+            }
             local_delete++;
         } else if (local_member < data->member_ops){
             pthread_mutex_lock(&mutex);
@@ -164,9 +238,29 @@ void *mutex_operations(void *threadarg) {
             pthread_mutex_unlock(&mutex);
             local_member++;
         } else if (local_insert < data->insert_ops){
+            rand_num = rand() % (data->max - data->min) + data->min;
             pthread_mutex_lock(&mutex);
-            lst.insert_node(rand() % (data->max - data->min) + data->min);
+            chk = lst.insert_node(rand_num);
             pthread_mutex_unlock(&mutex);
+            if (chk == 1){
+                while(local_member < data->member_ops){
+                    rand_operation = rand() / (float) RAND_MAX;
+                    if (rand_operation < member_percen){
+                        pthread_mutex_lock(&mutex);
+                        lst.member(rand() % (data->max - data->min) + data->min);
+                        pthread_mutex_unlock(&mutex);
+                        local_member++;
+                    } else {
+                        break;
+                    }
+                }
+                if (local_delete < data->delete_ops){
+                    pthread_mutex_lock(&mutex);
+                    lst.delete_node(rand_num);
+                    pthread_mutex_unlock(&mutex);
+                    local_delete++;
+                }
+            }
             local_insert++;
         }
     }
@@ -219,6 +313,7 @@ double do_rwl_operations(int thread_cnt, int member_ops, int insert_ops, int del
 void *rwl_operations(void *threadarg) {
     struct thread_data *data;
     data = (struct thread_data *) threadarg;
+    int rand_num, chk;
     int local_member = 0, local_insert = 0, local_delete = 0;
     float total_ops = data->member_ops + data->insert_ops + data->delete_ops;
     float member_percen = data->member_ops / total_ops, insert_percen = data->insert_ops / total_ops, delete_percen =
@@ -233,14 +328,54 @@ void *rwl_operations(void *threadarg) {
             pthread_rwlock_unlock(&rwlock);
             local_member++;
         } else if((rand_operation < (member_percen + insert_percen)) && (local_insert < data->insert_ops)){
+            rand_num = rand() % (data->max - data->min) + data->min;
             pthread_rwlock_wrlock(&rwlock);
-            lst.insert_node(rand() % (data->max - data->min) + data->min);
+            chk = lst.insert_node(rand_num);
             pthread_rwlock_unlock(&rwlock);
+            if (chk == 1){
+                while(local_member < data->member_ops){
+                    rand_operation = rand() / (float) RAND_MAX;
+                    if (rand_operation < member_percen){
+                        pthread_rwlock_rdlock(&rwlock);
+                        lst.member(rand() % (data->max - data->min) + data->min);
+                        pthread_rwlock_unlock(&rwlock);
+                        local_member++;
+                    } else {
+                        break;
+                    }
+                }
+                if (local_delete < data->delete_ops){
+                    pthread_rwlock_wrlock(&rwlock);
+                    lst.delete_node(rand_num);
+                    pthread_rwlock_unlock(&rwlock);
+                    local_delete++;
+                }
+            }
             local_insert++;
         } else if (local_delete < data->delete_ops){
+            rand_num = rand() % (data->max - data->min) + data->min;
             pthread_rwlock_wrlock(&rwlock);
             lst.delete_node(rand() % (data->max - data->min) + data->min);
             pthread_rwlock_unlock(&rwlock);
+            if (chk == 1){
+                while(local_member < data->member_ops) {
+                    rand_operation = rand() / (float) RAND_MAX;
+                    if (rand_operation < member_percen) {
+                        pthread_rwlock_rdlock(&rwlock);
+                        lst.member(rand() % (data->max - data->min) + data->min);
+                        pthread_rwlock_unlock(&rwlock);
+                        local_member++;
+                    } else {
+                        break;
+                    }
+                }
+                if (local_insert < data->insert_ops){
+                    pthread_rwlock_wrlock(&rwlock);
+                    chk = lst.insert_node(rand_num);
+                    pthread_rwlock_unlock(&rwlock);
+                    local_insert++;
+                }
+            }
             local_delete++;
         } else if (local_member < data->member_ops){
             pthread_rwlock_rdlock(&rwlock);
@@ -248,9 +383,29 @@ void *rwl_operations(void *threadarg) {
             pthread_rwlock_unlock(&rwlock);
             local_member++;
         } else if (local_insert < data->insert_ops){
+            rand_num = rand() % (data->max - data->min) + data->min;
             pthread_rwlock_wrlock(&rwlock);
-            lst.insert_node(rand() % (data->max - data->min) + data->min);
+            chk = lst.insert_node(rand_num);
             pthread_rwlock_unlock(&rwlock);
+            if (chk == 1){
+                while(local_member < data->member_ops){
+                    rand_operation = rand() / (float) RAND_MAX;
+                    if (rand_operation < member_percen){
+                        pthread_rwlock_rdlock(&rwlock);
+                        lst.member(rand() % (data->max - data->min) + data->min);
+                        pthread_rwlock_unlock(&rwlock);
+                        local_member++;
+                    } else {
+                        break;
+                    }
+                }
+                if (local_delete < data->delete_ops){
+                    pthread_rwlock_wrlock(&rwlock);
+                    lst.delete_node(rand_num);
+                    pthread_rwlock_unlock(&rwlock);
+                    local_delete++;
+                }
+            }
             local_insert++;
         }
     }
