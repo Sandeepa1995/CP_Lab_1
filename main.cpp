@@ -12,8 +12,8 @@
 #include "utils.h"
 #include "operations.h"
 
-
 int main() {
+    // Path to the project (NEED TO SET!)
     std::string PROJECT_PATH = "/home/damitha/CLionProjects/CP_Lab_1";
     int i, m_mem, m_insert, m_delete;
 

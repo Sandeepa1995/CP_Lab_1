@@ -7,6 +7,7 @@
 
 #include <cmath>
 
+// Utility functions
 namespace Utils{
     double mean(std::vector<double>* vec);
     double standard_deviation(std::vector<double>* vec);
@@ -14,6 +15,7 @@ namespace Utils{
 
 }
 
+// Get the mean in a vector set
 double Utils::mean(std::vector<double>* vec){
     double total = 0.0;
     unsigned long size = vec->size();
@@ -23,6 +25,7 @@ double Utils::mean(std::vector<double>* vec){
     return total/size;
 }
 
+// Get the standard deviation in a vector set
 double Utils::standard_deviation(std::vector<double>* vec){
     double standard_deviation = 0.0;
     unsigned long size = vec->size();
@@ -35,6 +38,7 @@ double Utils::standard_deviation(std::vector<double>* vec){
     return sqrt(standard_deviation/size);
 }
 
+// Get the number of operations needed to achieve the required confidence
 int Utils::operations_for_confidence(double mean, double standard_deviation, float z_val, float req_accuracy){
     return (int)ceil(pow(z_val*standard_deviation/(req_accuracy*mean),2));
 }
