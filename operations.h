@@ -35,9 +35,11 @@ std::vector<std::vector<double>> do_parallel_tasks_n_get_times(int member_ops, i
                                                                int max = 65536);
 
 double do_mutex_operations(int thread_cnt, int member_ops, int insert_ops, int delete_ops, int min, int max);
+
 void *mutex_operations(void *threadarg);
 
 double do_rwl_operations(int thread_cnt, int member_ops, int insert_ops, int delete_ops, int min, int max);
+
 void *rwl_operations(void *threadarg);
 
 
@@ -52,42 +54,40 @@ struct thread_data {
 double do_seq_operations(int member_ops, int insert_ops, int delete_ops, int min, int max) {
     lst = Linked_List::generate_random_list(1000);
     srand(time(nullptr));
-    int i, rand_num;
+    int local_member = 0, local_insert = 0, local_delete = 0;
+    float total_ops = member_ops + insert_ops + delete_ops;
+    float member_percen = member_ops / total_ops, insert_percen = insert_ops / total_ops, delete_percen =
+            delete_ops / total_ops;
+    float rand_operation;
 
     std::chrono::time_point<std::chrono::high_resolution_clock> t1, t2;
-//    clock_t t1, t2;
 
     t1 = std::chrono::high_resolution_clock::now();
-//    t1 = clock();
 
-    for (i = 0; i < member_ops; i++) {
-        lst.member(rand() % (max - min) + min);
+    while (local_member < member_ops || local_insert < insert_ops || local_delete < delete_ops) {
+        rand_operation = rand() / (float) RAND_MAX;
+        if ((rand_operation < member_percen) && (local_member < member_ops)){
+            lst.member(rand() % (max - min) + min);
+            local_member++;
+        } else if((rand_operation < (member_percen + insert_percen)) && (local_insert < insert_ops)){
+            lst.insert_node(rand() % (max - min) + min);
+            local_insert++;
+        } else if (local_delete < delete_ops){
+            lst.delete_node(rand() % (max - min) + min);
+            local_delete++;
+        } else if (local_member < member_ops){
+            lst.member(rand() % (max - min) + min);
+            local_member++;
+        } else if (local_insert < insert_ops){
+            lst.insert_node(rand() % (max - min) + min);
+            local_insert++;
+        }
     }
-
-    int min_operation = std::min(insert_ops, delete_ops);
-    for (i = 0; i < min_operation; i++) {
-        rand_num = rand() % (max - min) + min;
-        lst.insert_node(rand_num);
-        lst.delete_node(rand_num);
-    }
-
-    int remain_insert = insert_ops - min_operation;
-    for (i = 0; i < remain_insert; i++) {
-        lst.insert_node(rand() % (max - min) + min);
-    }
-
-    int remain_delete = delete_ops - min_operation;
-    for (i = 0; i < remain_delete; i++) {
-        lst.delete_node(rand() % (max - min) + min);
-    }
-
     t2 = std::chrono::high_resolution_clock::now();
 
     lst.free_list();
-//    t2 = clock();
 
     return std::chrono::duration_cast<std::chrono::milliseconds>(t2 - t1).count();
-//    return ((double)t2 - (double)t1)*1000000/CLOCKS_PER_SEC;
 }
 
 double do_mutex_operations(int thread_cnt, int member_ops, int insert_ops, int delete_ops, int min, int max) {
@@ -135,38 +135,40 @@ double do_mutex_operations(int thread_cnt, int member_ops, int insert_ops, int d
 void *mutex_operations(void *threadarg) {
     struct thread_data *data;
     data = (struct thread_data *) threadarg;
-    int i, rand_num;
+    int local_member = 0, local_insert = 0, local_delete = 0;
+    float total_ops = data->member_ops + data->insert_ops + data->delete_ops;
+    float member_percen = data->member_ops / total_ops, insert_percen = data->insert_ops / total_ops, delete_percen =
+            data->delete_ops / total_ops;
+    float rand_operation;
 
-    for (i = 0; i < data->member_ops; i++) {
-        pthread_mutex_lock(&mutex);
-        lst.member(rand() % (data->max - data->min) + data->min);
-        pthread_mutex_unlock(&mutex);
-    }
-
-    int min_operation = std::min(data->insert_ops, data->delete_ops);
-    for (i = 0; i < min_operation; i++) {
-        rand_num = rand() % (data->max - data->min) + data->min;
-        pthread_mutex_lock(&mutex);
-        lst.insert_node(rand_num);
-        pthread_mutex_unlock(&mutex);
-
-        pthread_mutex_lock(&mutex);
-        lst.delete_node(rand_num);
-        pthread_mutex_unlock(&mutex);
-    }
-
-    int remain_insert = data->insert_ops - min_operation;
-    for (i = 0; i < remain_insert; i++) {
-        pthread_mutex_lock(&mutex);
-        lst.insert_node(rand() % (data->max - data->min) + data->min);
-        pthread_mutex_unlock(&mutex);
-    }
-
-    int remain_delete = data->delete_ops - min_operation;
-    for (i = 0; i < remain_delete; i++) {
-        pthread_mutex_lock(&mutex);
-        lst.delete_node(rand() % (data->max - data->min) + data->min);
-        pthread_mutex_unlock(&mutex);
+    while (local_member < data->member_ops || local_insert < data->insert_ops || local_delete < data->delete_ops) {
+        rand_operation = rand() / (float) RAND_MAX;
+        if ((rand_operation < member_percen) && (local_member < data->member_ops)){
+            pthread_mutex_lock(&mutex);
+            lst.member(rand() % (data->max - data->min) + data->min);
+            pthread_mutex_unlock(&mutex);
+            local_member++;
+        } else if((rand_operation < (member_percen + insert_percen)) && (local_insert < data->insert_ops)){
+            pthread_mutex_lock(&mutex);
+            lst.insert_node(rand() % (data->max - data->min) + data->min);
+            pthread_mutex_unlock(&mutex);
+            local_insert++;
+        } else if (local_delete < data->delete_ops){
+            pthread_mutex_lock(&mutex);
+            lst.delete_node(rand() % (data->max - data->min) + data->min);
+            pthread_mutex_unlock(&mutex);
+            local_delete++;
+        } else if (local_member < data->member_ops){
+            pthread_mutex_lock(&mutex);
+            lst.member(rand() % (data->max - data->min) + data->min);
+            pthread_mutex_unlock(&mutex);
+            local_member++;
+        } else if (local_insert < data->insert_ops){
+            pthread_mutex_lock(&mutex);
+            lst.insert_node(rand() % (data->max - data->min) + data->min);
+            pthread_mutex_unlock(&mutex);
+            local_insert++;
+        }
     }
 
     return nullptr;
@@ -217,41 +219,41 @@ double do_rwl_operations(int thread_cnt, int member_ops, int insert_ops, int del
 void *rwl_operations(void *threadarg) {
     struct thread_data *data;
     data = (struct thread_data *) threadarg;
-    int i, rand_num;
+    int local_member = 0, local_insert = 0, local_delete = 0;
+    float total_ops = data->member_ops + data->insert_ops + data->delete_ops;
+    float member_percen = data->member_ops / total_ops, insert_percen = data->insert_ops / total_ops, delete_percen =
+            data->delete_ops / total_ops;
+    float rand_operation;
 
-    for (i = 0; i < data->member_ops; i++) {
-        pthread_rwlock_rdlock(&rwlock);
-        lst.member(rand() % (data->max - data->min) + data->min);
-        pthread_rwlock_unlock(&rwlock);
+    while (local_member < data->member_ops || local_insert < data->insert_ops || local_delete < data->delete_ops) {
+        rand_operation = rand() / (float) RAND_MAX;
+        if ((rand_operation < member_percen) && (local_member < data->member_ops)){
+            pthread_rwlock_rdlock(&rwlock);
+            lst.member(rand() % (data->max - data->min) + data->min);
+            pthread_rwlock_unlock(&rwlock);
+            local_member++;
+        } else if((rand_operation < (member_percen + insert_percen)) && (local_insert < data->insert_ops)){
+            pthread_rwlock_wrlock(&rwlock);
+            lst.insert_node(rand() % (data->max - data->min) + data->min);
+            pthread_rwlock_unlock(&rwlock);
+            local_insert++;
+        } else if (local_delete < data->delete_ops){
+            pthread_rwlock_wrlock(&rwlock);
+            lst.delete_node(rand() % (data->max - data->min) + data->min);
+            pthread_rwlock_unlock(&rwlock);
+            local_delete++;
+        } else if (local_member < data->member_ops){
+            pthread_rwlock_rdlock(&rwlock);
+            lst.member(rand() % (data->max - data->min) + data->min);
+            pthread_rwlock_unlock(&rwlock);
+            local_member++;
+        } else if (local_insert < data->insert_ops){
+            pthread_rwlock_wrlock(&rwlock);
+            lst.insert_node(rand() % (data->max - data->min) + data->min);
+            pthread_rwlock_unlock(&rwlock);
+            local_insert++;
+        }
     }
-
-    int min_operation = std::min(data->insert_ops, data->delete_ops);
-    for (i = 0; i < min_operation; i++) {
-        rand_num = rand() % (data->max - data->min) + data->min;
-
-        pthread_rwlock_wrlock(&rwlock);
-        lst.insert_node(rand_num);
-        pthread_rwlock_unlock(&rwlock);
-
-        pthread_rwlock_wrlock(&rwlock);
-        lst.delete_node(rand_num);
-        pthread_rwlock_unlock(&rwlock);
-    }
-
-    int remain_insert = data->insert_ops - min_operation;
-    for (i = 0; i < remain_insert; i++) {
-        pthread_rwlock_wrlock(&rwlock);
-        lst.insert_node(rand() % (data->max - data->min) + data->min);
-        pthread_rwlock_unlock(&rwlock);
-    }
-
-    int remain_delete = data->delete_ops - min_operation;
-    for (i = 0; i < remain_delete; i++) {
-        pthread_rwlock_wrlock(&rwlock);
-        lst.delete_node(rand() % (data->max - data->min) + data->min);
-        pthread_rwlock_unlock(&rwlock);
-    }
-
     return nullptr;
 }
 
@@ -261,7 +263,7 @@ std::vector<double> do_tasks_n_get_times(int member_ops, int insert_ops, int del
     std::vector<double> times;
     times.reserve(10);
 
-    for (int i = 0; i < 10; i++) {
+    for (int i = 0; i < 1000; i++) {
         times.push_back(task(member_ops, insert_ops, delete_ops, min, max));
     }
 
@@ -296,7 +298,7 @@ std::vector<std::vector<double>> do_parallel_tasks_n_get_times(int member_ops, i
         std::vector<double> time;
         time.reserve(10);
 
-        for (int i = 0; i < 10; i++) {
+        for (int i = 0; i < 1000; i++) {
             time.push_back(task(THREAD_NUMBERS[thr_cnt], member_ops, insert_ops, delete_ops, min, max));
         }
 
