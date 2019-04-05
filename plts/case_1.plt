@@ -1,6 +1,6 @@
 set terminal png size 1024,768
 set output "graphs/case_1.png"
-set title "Lock Analysis Case 1 (R - 99%, Insert/Delete - 0.5%) 150359E,"
+set title "Lock Analysis Case 1 (R - 99%, Insert/Delete - 0.5%) 150359E,150207M"
 set xlabel "Threads"
 set xrange [0:9]
 set ylabel "Average time taken (ms)"
