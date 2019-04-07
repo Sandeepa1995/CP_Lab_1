@@ -23,7 +23,7 @@ public:
     static Linked_List generate_random_list(int n, int min = 0, int max = 65536){
         Linked_List new_list;
         clock_gettime(CLOCK_MONOTONIC, &ts);
-        srand((time_t)ts.tv_nsec);
+        srand(time(nullptr)*pow(10,9) + (time_t)ts.tv_nsec);
 
         while (new_list.size() < n){
             new_list.insert_node(rand() % (max - min) + min);

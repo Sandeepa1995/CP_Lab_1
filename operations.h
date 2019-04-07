@@ -59,7 +59,8 @@ double do_seq_operations(int member_ops, int insert_ops, int delete_ops, int min
     lst = Linked_List::generate_random_list(1000);
     // Initialize random function passing the current time as the seed
     clock_gettime(CLOCK_MONOTONIC, &ts);
-    srand((time_t)ts.tv_nsec);
+    srand(time(nullptr)*pow(10,9) + (time_t)ts.tv_nsec);
+
     // Define variables
     int rand_num, chk;
     float rand_operation;
@@ -154,7 +155,7 @@ double do_mutex_operations(int thread_cnt, int member_ops, int insert_ops, int d
     lst = Linked_List::generate_random_list(1000);
     // Initialize random function passing the current time as the seed
     clock_gettime(CLOCK_MONOTONIC, &ts);
-    srand((time_t)ts.tv_nsec);
+    srand(time(nullptr)*pow(10,9) + (time_t)ts.tv_nsec);
 
     // Initialize time variables
     std::chrono::time_point<std::chrono::high_resolution_clock> t1, t2;
@@ -310,7 +311,7 @@ double do_rwl_operations(int thread_cnt, int member_ops, int insert_ops, int del
     lst = Linked_List::generate_random_list(1000);
     // Initialize random function passing the current time as the seed
     clock_gettime(CLOCK_MONOTONIC, &ts);
-    srand((time_t)ts.tv_nsec);
+    srand(time(nullptr)*pow(10,9) + (time_t)ts.tv_nsec);
 
     // Initialize time variables
     std::chrono::time_point<std::chrono::high_resolution_clock> t1, t2;
