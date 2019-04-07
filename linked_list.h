@@ -84,6 +84,9 @@ int Linked_List::insert_node(int value) {
             }
         } else {
             header->next = new_node;
+            if(current_node_p!= nullptr){
+                new_node->next = current_node_p;
+            }
         }
         // Return 1 as success
         return 1;
